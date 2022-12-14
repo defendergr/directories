@@ -1,0 +1,6 @@
+Setup
+venv
+.idea
+.git
+__pycache__
+output.py

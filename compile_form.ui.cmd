@@ -1,0 +1,1 @@
+pyuic6 -x .\form.ui -o .\output.py
