@@ -2,7 +2,7 @@ import sys
 from PyQt6 import QtCore, QtWidgets
 from PyQt6.QtCore import QProcess, Qt
 from PyQt6.QtGui import QIcon, QPixmap
-from PyQt6.QtWidgets import QMessageBox
+from PyQt6.QtWidgets import QMessageBox, QListWidget, QListWidgetItem
 
 from iconExtract import IconExtract
 import time
@@ -38,7 +38,9 @@ class Ui_Dialog(object):
         self.exit.clicked.connect(self.stop)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
+        self.appItems = QListWidget()
         line = 10
+        num =1
         for i in self.filesDict:
             self.fileCheckBox = QtWidgets.QCheckBox(self.scrollAreaWidgetContents)
             self.fileLabel = QtWidgets.QLabel(self.scrollAreaWidgetContents)
@@ -64,11 +66,30 @@ class Ui_Dialog(object):
 
             line += 20
 
+            self.fileCheckBox = QListWidgetItem("checkBox%i" % num)
+            self.appItems.addItem(self.fileCheckBox)
+            self.fileLabel = QListWidgetItem("name%i" % num)
+            self.appItems.addItem(self.fileLabel)
+            self.imgLabel = QListWidgetItem("icon%i" % num)
+            self.appItems.addItem(self.imgLabel)
+            num += 1
+        print(self.appItems.count())
+
+
+
 
 
     def start(self):
-        if self.fileCheckBox.isChecked():
-            print(self.fileLabel.text())
+        listItems = []
+        for item in range(0, self.appItems.count(), 3):
+            print(self.appItems.item(item).checkState())
+            print(self.appItems.item(item).isSelected())
+            if self.appItems.item(item).checkState() == self.appItems.item(item).checkState().Checked:
+                listItems.append(self.appItems.item(item).text())
+                print(self.appItems.item(item).text())
+
+            # if self.appItems.itemChanged():
+            #     print(self.fileLabel.text())
         self.install.setEnabled(False)
 
 
