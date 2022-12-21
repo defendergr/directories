@@ -1,106 +1,95 @@
 import sys
+import traceback
+
 from PyQt6 import QtCore, QtWidgets
-from PyQt6.QtCore import QProcess, Qt
+from PyQt6.QtCore import QProcess, QThreadPool, QObject, pyqtSignal, QRunnable, pyqtSlot
 from PyQt6.QtGui import QIcon, QPixmap
-from PyQt6.QtWidgets import QMessageBox, QListWidget, QListWidgetItem
+from PyQt6.QtWidgets import QMessageBox, QListWidget, QListWidgetItem, QAbstractItemView
 
 from iconExtract import IconExtract
-import time
+
+
+
+class Worker(QRunnable):
+    def __init__(self, fn):
+        super(Worker, self).__init__()
+        # Store constructor arguments (re-used for processing)
+        self.fn = fn
+
+    @pyqtSlot()
+    def run(self):
+        self.fn()
+
 
 class Ui_Dialog(object):
-    def setupUi(self, Dialog):
+    def __init__(self):
+        self.filesDict = IconExtract().extract()
+        self.appItems = QListWidget()
         self.process = QProcess()
-        Dialog.setObjectName("Dialog")
-        Dialog.resize(627, 444)
-        self.scrollArea = QtWidgets.QScrollArea(Dialog)
+        self.thread = QThreadPool()
+
+
+    def setupUi(self, dialog):
+
+        dialog.setObjectName("Dialog")
+        dialog.resize(627, 444)
+        self.scrollArea = QtWidgets.QScrollArea(dialog)
         self.scrollArea.setGeometry(QtCore.QRect(20, 20, 411, 401))
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
-        self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 409, 399))
-        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
 
-        self.filesDict = IconExtract().extract()
+        self.appItems.setGeometry(QtCore.QRect(0, 0, 409, 399))
+        # self.appItems.setAlternatingRowColors(True)
+        self.appItems.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
 
-        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+        self.scrollArea.setWidget(self.appItems)
 
-        self.install = QtWidgets.QPushButton(Dialog)
+        self.install = QtWidgets.QPushButton(dialog)
         self.install.setGeometry(QtCore.QRect(440, 400, 75, 24))
         self.install.setObjectName("install")
 
-        self.exit = QtWidgets.QPushButton(Dialog)
+        self.exit = QtWidgets.QPushButton(dialog)
         self.exit.setGeometry(QtCore.QRect(530, 400, 75, 24))
         self.exit.setObjectName("exit")
 
         self.install.setText("Install")
         self.exit.setText("Exit")
-        self.install.clicked.connect(self.start)
+
+        self.install.clicked.connect(self.proc)
         self.exit.clicked.connect(self.stop)
-        QtCore.QMetaObject.connectSlotsByName(Dialog)
+        QtCore.QMetaObject.connectSlotsByName(dialog)
 
-        self.appItems = QListWidget()
-        line = 10
-        num =1
+        num = 1
         for i in self.filesDict:
-            self.fileCheckBox = QtWidgets.QCheckBox(self.scrollAreaWidgetContents)
-            self.fileLabel = QtWidgets.QLabel(self.scrollAreaWidgetContents)
-            self.imgLabel = QtWidgets.QLabel(self.scrollAreaWidgetContents)
-            self.img = QPixmap(r'./setup/icons/'+i['img']+'.png')
-            # print(r'./setup/icons/'+i['img']+'.png')
+            vars()[f"self.img{num}"] = QPixmap(r'./setup/icons/'+i['img']+'.png')
 
-            # print(i)
+            vars()[f'self.app{num}'] = QListWidgetItem(QIcon(vars()[f"self.img{num}"]), f"{i['img']}")
+            self.appItems.addItem(vars()[f'self.app{num}'])
 
-            self.fileCheckBox.setGeometry(QtCore.QRect(380, line, 16, 20))
-            self.fileCheckBox.setObjectName("fileCheckBox")
-
-            self.fileLabel.setGeometry(QtCore.QRect(40, line, 301, 20))
-            self.fileLabel.setObjectName("fileLabel")
-            self.fileLabel.setText(i['img'])
-
-            self.imgLabel.setGeometry(QtCore.QRect(10, line, 16, 16))
-            self.imgLabel.setObjectName("imgLabel")
-            self.imgLabel.setPixmap(self.img)
-            self.imgLabel.setScaledContents(True)
-            self.imgLabel.setPixmap(self.img.scaled(16, 16, Qt.AspectRatioMode.KeepAspectRatio))
-            self.imgLabel.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignRight)
-
-            line += 20
-
-            self.fileCheckBox = QListWidgetItem("checkBox%i" % num)
-            self.appItems.addItem(self.fileCheckBox)
-            self.fileLabel = QListWidgetItem("name%i" % num)
-            self.appItems.addItem(self.fileLabel)
-            self.imgLabel = QListWidgetItem("icon%i" % num)
-            self.appItems.addItem(self.imgLabel)
             num += 1
         print(self.appItems.count())
 
 
-
+    def proc(self):
+        worker = Worker(self.start)
+        self.thread.start(worker)
 
 
     def start(self):
         listItems = []
-        for item in range(0, self.appItems.count(), 3):
-            print(self.appItems.item(item).checkState())
-            print(self.appItems.item(item).isSelected())
-            if self.appItems.item(item).checkState() == self.appItems.item(item).checkState().Checked:
-                listItems.append(self.appItems.item(item).text())
-                print(self.appItems.item(item).text())
-
-            # if self.appItems.itemChanged():
-            #     print(self.fileLabel.text())
         self.install.setEnabled(False)
 
+        for item in range(0, self.appItems.count()):
+            if self.appItems.item(item).isSelected():
+                listItems.append(self.filesDict[item]['path'])
 
-        # for setup in self.filesDict:
-        #     self.process.start(setup['path'])
-        #     print(setup['path'])
-            # time.sleep(3)
+        for setup in listItems:
+            self.process.start(setup)
 
+            print(setup, self.process.state())
+            self.process.waitForFinished()
 
-
-
+        self.install.setEnabled(True)
 
     def stop(self):
         sys.exit()
