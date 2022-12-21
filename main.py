@@ -2,7 +2,7 @@ import sys
 import traceback
 
 from PyQt6 import QtCore, QtWidgets
-from PyQt6.QtCore import QProcess, QThreadPool, QObject, pyqtSignal, QRunnable, pyqtSlot
+from PyQt6.QtCore import QProcess, QThreadPool, QRunnable, pyqtSlot
 from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtWidgets import QMessageBox, QListWidget, QListWidgetItem, QAbstractItemView
 
@@ -52,11 +52,18 @@ class Ui_Dialog(object):
         self.exit.setGeometry(QtCore.QRect(530, 400, 75, 24))
         self.exit.setObjectName("exit")
 
+        self.info = QtWidgets.QPushButton(dialog)
+        self.info.setGeometry(QtCore.QRect(530, 20, 75, 24))
+        self.info.setObjectName("info")
+
         self.install.setText("Install")
         self.exit.setText("Exit")
+        self.info.setText("i")
 
-        self.install.clicked.connect(self.proc)
-        self.exit.clicked.connect(self.stop)
+        self.info.clicked.connect(self.about)
+        self.install.clicked.connect(lambda: self.startProcess(self.start))
+        self.exit.clicked.connect(sys.exit)
+
         QtCore.QMetaObject.connectSlotsByName(dialog)
 
         num = 1
@@ -70,8 +77,8 @@ class Ui_Dialog(object):
         print(self.appItems.count())
 
 
-    def proc(self):
-        worker = Worker(self.start)
+    def startProcess(self, process):
+        worker = Worker(process)
         self.thread.start(worker)
 
 
@@ -91,14 +98,12 @@ class Ui_Dialog(object):
 
         self.install.setEnabled(True)
 
-    def stop(self):
-        sys.exit()
 
     def about(self):
         msgBox = QMessageBox()
         msgBox.setWindowTitle('About')
         msgBox.setWindowIcon(QIcon('dimos.ico'))
-        msgBox.setText("Backuper έκδοση 1.2.0 \nΓια τον Δήμο Θέρμης \nΑπό: Κωνσταντίνος Καρακασίδης")
+        msgBox.setText("Multi Installer έκδοση 1.0.0 \nΑπό: Κωνσταντίνος Καρακασίδης")
         msgBox.exec()
 
 

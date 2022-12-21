@@ -101,6 +101,19 @@
     <string>Exit</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="info">
+   <property name="geometry">
+    <rect>
+     <x>530</x>
+     <y>20</y>
+     <width>75</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>i</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>
