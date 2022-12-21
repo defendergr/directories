@@ -1,5 +1,4 @@
 import sys
-import traceback
 
 from PyQt6 import QtCore, QtWidgets
 from PyQt6.QtCore import QProcess, QThreadPool, QRunnable, pyqtSlot
@@ -8,7 +7,7 @@ from PyQt6.QtWidgets import QMessageBox, QListWidget, QListWidgetItem, QAbstract
 
 from iconExtract import IconExtract
 
-
+ver = '1.0.0'
 
 class Worker(QRunnable):
     def __init__(self, fn):
@@ -33,6 +32,10 @@ class Ui_Dialog(object):
 
         dialog.setObjectName("Dialog")
         dialog.resize(627, 444)
+        dialog.setWindowTitle(f'Multi Installer έκδοση {ver}')
+        dialog.setWindowIcon(QIcon('icon.ico'))
+        dialog.setFixedSize(dialog.width(), dialog.height())
+
         self.scrollArea = QtWidgets.QScrollArea(dialog)
         self.scrollArea.setGeometry(QtCore.QRect(20, 20, 411, 401))
         self.scrollArea.setWidgetResizable(True)
@@ -102,8 +105,8 @@ class Ui_Dialog(object):
     def about(self):
         msgBox = QMessageBox()
         msgBox.setWindowTitle('About')
-        msgBox.setWindowIcon(QIcon('dimos.ico'))
-        msgBox.setText("Multi Installer έκδοση 1.0.0 \nΑπό: Κωνσταντίνος Καρακασίδης")
+        msgBox.setWindowIcon(QIcon('icon.ico'))
+        msgBox.setText(f"Multi Installer έκδοση {ver} \nΑπό: Κωνσταντίνος Καρακασίδης")
         msgBox.exec()
 
 
@@ -111,8 +114,8 @@ class Ui_Dialog(object):
 
 if __name__=="__main__":
     app = QtWidgets.QApplication(sys.argv)
-    Dialog = QtWidgets.QDialog()
+    dialog = QtWidgets.QDialog()
     ui = Ui_Dialog()
-    ui.setupUi(Dialog)
-    Dialog.show()
+    ui.setupUi(dialog)
+    dialog.show()
     sys.exit(app.exec())
