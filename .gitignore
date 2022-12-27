@@ -1,7 +1,11 @@
+dist
+build
+icons
 Setup
 venv
+cvenv
 .idea
 .git
 __pycache__
 output.py
-
+MInstaller.spec

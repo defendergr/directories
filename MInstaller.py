@@ -1,13 +1,13 @@
+import subprocess
 import sys
 
-from PyQt6 import QtCore, QtWidgets
-from PyQt6.QtCore import QProcess, QThreadPool, QRunnable, pyqtSlot
+from PyQt6.QtCore import QThreadPool, QRunnable, pyqtSlot, QRect, QMetaObject
 from PyQt6.QtGui import QIcon, QPixmap
-from PyQt6.QtWidgets import QMessageBox, QListWidget, QListWidgetItem, QAbstractItemView
+from PyQt6.QtWidgets import QMessageBox, QListWidget, QListWidgetItem, QAbstractItemView, QApplication, QDialog, QPushButton, QScrollArea, QSplashScreen
 
 from iconExtract import IconExtract
 
-ver = '1.0.0'
+ver = '1.1.1'
 
 class Worker(QRunnable):
     def __init__(self, fn):
@@ -22,9 +22,11 @@ class Worker(QRunnable):
 
 class Ui_Dialog(object):
     def __init__(self):
+        pixmap = QPixmap("./images/splash.png")
+        splash = QSplashScreen(pixmap)
+        splash.show()
         self.filesDict = IconExtract().extract()
         self.appItems = QListWidget()
-        self.process = QProcess()
         self.thread = QThreadPool()
 
 
@@ -33,30 +35,30 @@ class Ui_Dialog(object):
         dialog.setObjectName("Dialog")
         dialog.resize(627, 444)
         dialog.setWindowTitle(f'Multi Installer έκδοση {ver}')
-        dialog.setWindowIcon(QIcon('icon.ico'))
+        dialog.setWindowIcon(QIcon('./images/icon.ico'))
         dialog.setFixedSize(dialog.width(), dialog.height())
 
-        self.scrollArea = QtWidgets.QScrollArea(dialog)
-        self.scrollArea.setGeometry(QtCore.QRect(20, 20, 411, 401))
+        self.scrollArea = QScrollArea(dialog)
+        self.scrollArea.setGeometry(QRect(20, 20, 411, 401))
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
 
-        self.appItems.setGeometry(QtCore.QRect(0, 0, 409, 399))
+        self.appItems.setGeometry(QRect(0, 0, 409, 399))
         # self.appItems.setAlternatingRowColors(True)
         self.appItems.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
 
         self.scrollArea.setWidget(self.appItems)
 
-        self.install = QtWidgets.QPushButton(dialog)
-        self.install.setGeometry(QtCore.QRect(440, 400, 75, 24))
+        self.install = QPushButton(dialog)
+        self.install.setGeometry(QRect(440, 400, 75, 24))
         self.install.setObjectName("install")
 
-        self.exit = QtWidgets.QPushButton(dialog)
-        self.exit.setGeometry(QtCore.QRect(530, 400, 75, 24))
+        self.exit = QPushButton(dialog)
+        self.exit.setGeometry(QRect(530, 400, 75, 24))
         self.exit.setObjectName("exit")
 
-        self.info = QtWidgets.QPushButton(dialog)
-        self.info.setGeometry(QtCore.QRect(530, 20, 75, 24))
+        self.info = QPushButton(dialog)
+        self.info.setGeometry(QRect(530, 20, 75, 24))
         self.info.setObjectName("info")
 
         self.install.setText("Install")
@@ -67,11 +69,11 @@ class Ui_Dialog(object):
         self.install.clicked.connect(lambda: self.startProcess(self.start))
         self.exit.clicked.connect(sys.exit)
 
-        QtCore.QMetaObject.connectSlotsByName(dialog)
+        QMetaObject.connectSlotsByName(dialog)
 
         num = 1
         for i in self.filesDict:
-            vars()[f"self.img{num}"] = QPixmap(r'./setup/icons/'+i['img']+'.png')
+            vars()[f"self.img{num}"] = QPixmap(r'./icons/'+i['img']+'.png')
 
             vars()[f'self.app{num}'] = QListWidgetItem(QIcon(vars()[f"self.img{num}"]), f"{i['img']}")
             self.appItems.addItem(vars()[f'self.app{num}'])
@@ -84,7 +86,6 @@ class Ui_Dialog(object):
         worker = Worker(process)
         self.thread.start(worker)
 
-
     def start(self):
         listItems = []
         self.install.setEnabled(False)
@@ -93,11 +94,11 @@ class Ui_Dialog(object):
             if self.appItems.item(item).isSelected():
                 listItems.append(self.filesDict[item]['path'])
 
-        for setup in listItems:
-            self.process.start(setup)
 
-            print(setup, self.process.state())
-            self.process.waitForFinished()
+        for setup in listItems:
+            process = subprocess.Popen(['start', '"' + setup + '"'], shell=True)
+            process.wait()
+
 
         self.install.setEnabled(True)
 
@@ -105,7 +106,7 @@ class Ui_Dialog(object):
     def about(self):
         msgBox = QMessageBox()
         msgBox.setWindowTitle('About')
-        msgBox.setWindowIcon(QIcon('icon.ico'))
+        msgBox.setWindowIcon(QIcon('images/icon.ico'))
         msgBox.setText(f"Multi Installer έκδοση {ver} \nΑπό: Κωνσταντίνος Καρακασίδης")
         msgBox.exec()
 
@@ -113,8 +114,8 @@ class Ui_Dialog(object):
 
 
 if __name__=="__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    dialog = QtWidgets.QDialog()
+    app = QApplication(sys.argv)
+    dialog = QDialog()
     ui = Ui_Dialog()
     ui.setupUi(dialog)
     dialog.show()

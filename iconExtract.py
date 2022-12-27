@@ -11,7 +11,10 @@ class IconExtract():
     def __init__(self):
         self.pattern = r'./Setup/**/*.exe'
         self.fileList = glob.glob(self.pattern, recursive=True)
-        self.pathToSaveIcons = r'./setup/icons'
+        self.pathToSaveIcons = r'./icons'
+        if not os.path.exists(self.pathToSaveIcons):
+            os.mkdir(self.pathToSaveIcons)
+
         self.numberOfSetupFiles = 0
 
 
