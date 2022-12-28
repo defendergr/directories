@@ -9,10 +9,10 @@ from PIL import Image
 class IconExtract():
 
     def __init__(self):
-        self.patternEXE = r'./Setup/**/*.exe'
+        self.patternEXE = r'./**/*.exe'
         self.fileListEXE = glob.glob(self.patternEXE, recursive=True)
 
-        self.patternMSI = r'./Setup/**/*.msi'
+        self.patternMSI = r'./**/*.msi'
         self.fileListMSI = glob.glob(self.patternMSI, recursive=True)
 
         self.fileList = self.fileListEXE + self.fileListMSI

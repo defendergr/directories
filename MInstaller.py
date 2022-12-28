@@ -1,5 +1,6 @@
 import subprocess
 import sys
+import os
 
 from PyQt6.QtCore import QThreadPool, QRunnable, pyqtSlot, QRect, QMetaObject
 from PyQt6.QtGui import QIcon, QPixmap
@@ -7,7 +8,21 @@ from PyQt6.QtWidgets import QMessageBox, QListWidget, QListWidgetItem, QAbstract
 
 from iconExtract import IconExtract
 
-ver = '1.1.1'
+ver = '1.2.3'
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+
+
+
+
+
 
 class Worker(QRunnable):
     def __init__(self, fn):
@@ -22,7 +37,7 @@ class Worker(QRunnable):
 
 class Ui_Dialog(object):
     def __init__(self):
-        pixmap = QPixmap("./images/splash.png")
+        pixmap = QPixmap(resource_path("images/splash.png"))
         splash = QSplashScreen(pixmap)
         splash.show()
         self.filesDict = IconExtract().extract()
@@ -35,7 +50,7 @@ class Ui_Dialog(object):
         dialog.setObjectName("Dialog")
         dialog.resize(627, 444)
         dialog.setWindowTitle(f'Multi Installer έκδοση {ver}')
-        dialog.setWindowIcon(QIcon('./images/icon.ico'))
+        dialog.setWindowIcon(QIcon(resource_path("images/icon.ico")))
         dialog.setFixedSize(dialog.width(), dialog.height())
 
         self.scrollArea = QScrollArea(dialog)
@@ -79,6 +94,7 @@ class Ui_Dialog(object):
             self.appItems.addItem(vars()[f'self.app{num}'])
 
             num += 1
+            print(i)
         print(self.appItems.count())
 
 
@@ -96,7 +112,8 @@ class Ui_Dialog(object):
 
 
         for setup in listItems:
-            process = subprocess.Popen(['start', '"' + setup + '"'], shell=True)
+            print(setup)
+            process = subprocess.Popen(['start', setup], shell=True)
             process.wait()
 
 
@@ -106,7 +123,7 @@ class Ui_Dialog(object):
     def about(self):
         msgBox = QMessageBox()
         msgBox.setWindowTitle('About')
-        msgBox.setWindowIcon(QIcon('images/icon.ico'))
+        msgBox.setWindowIcon(QIcon(resource_path("images/icon.ico")))
         msgBox.setText(f"Multi Installer έκδοση {ver} \nΑπό: Κωνσταντίνος Καρακασίδης")
         msgBox.exec()
 

@@ -1,1 +1,1 @@
-pyinstaller --windowed --icon=icon.ico MInstaller.py
+pyinstaller MInstaller.py --windowed --onefile --add-data="./images/*;./images" --icon=./images/icon.ico
