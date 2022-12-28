@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import QMessageBox, QListWidget, QListWidgetItem, QAbstract
 
 from iconExtract import IconExtract
 
-ver = '1.2.4'
+ver = '1.2.6'
 
 def resource_path(relative_path):
     try:
@@ -62,6 +62,7 @@ class Ui_Dialog(object):
         # self.appItems.setAlternatingRowColors(True)
         self.appItems.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
 
+
         self.scrollArea.setWidget(self.appItems)
 
         self.install = QPushButton(dialog)
@@ -76,11 +77,17 @@ class Ui_Dialog(object):
         self.info.setGeometry(QRect(530, 20, 75, 24))
         self.info.setObjectName("info")
 
+        self.clear = QPushButton(dialog)
+        self.clear.setGeometry(QRect(510, 200, 100, 24))
+        self.clear.setObjectName("clear")
+
         self.install.setText("Install")
         self.exit.setText("Exit")
         self.info.setText("i")
+        self.clear.setText("Clear Selected")
 
         self.info.clicked.connect(self.about)
+        self.clear.clicked.connect(self.appItems.clearSelection)
         self.install.clicked.connect(lambda: self.startProcess(self.start))
         self.exit.clicked.connect(sys.exit)
 
@@ -116,8 +123,8 @@ class Ui_Dialog(object):
             process = subprocess.Popen(['start', setup], shell=True)
             process.wait()
 
-
         self.install.setEnabled(True)
+
 
 
     def about(self):
