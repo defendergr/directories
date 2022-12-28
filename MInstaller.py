@@ -94,7 +94,7 @@ class Ui_Dialog(object):
             self.appItems.addItem(vars()[f'self.app{num}'])
 
             num += 1
-            print(i)
+            # print(i)
         print(self.appItems.count())
 
 

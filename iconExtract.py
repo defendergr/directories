@@ -1,4 +1,6 @@
 import glob
+import re
+
 import win32ui
 import win32gui
 import win32con
@@ -11,11 +13,13 @@ class IconExtract():
     def __init__(self):
         self.patternEXE = r'./**/*.exe'
         self.fileListEXE = glob.glob(self.patternEXE, recursive=True)
+        regex = re.compile(r"^.*minst.*$", re.IGNORECASE)
+        self.fileListEXE_filtered = [i for i in self.fileListEXE if not regex.match(i)]
 
         self.patternMSI = r'./**/*.msi'
         self.fileListMSI = glob.glob(self.patternMSI, recursive=True)
 
-        self.fileList = self.fileListEXE + self.fileListMSI
+        self.fileList = self.fileListEXE_filtered + self.fileListMSI
 
         self.pathToSaveIcons = r'./icons'
         if not os.path.exists(self.pathToSaveIcons):
