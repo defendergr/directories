@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import QMessageBox, QListWidget, QListWidgetItem, QAbstract
 
 from iconExtract import IconExtract
 
-ver = '1.2.3'
+ver = '1.2.4'
 
 def resource_path(relative_path):
     try:
