@@ -120,7 +120,7 @@ class Ui_Dialog(object):
 
         for setup in listItems:
             print(setup)
-            process = subprocess.Popen(['start', setup], shell=True)
+            process = subprocess.Popen([setup], shell=True)
             process.wait()
 
         self.install.setEnabled(True)
